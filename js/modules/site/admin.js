@@ -75,7 +75,7 @@ layui.define(['jquery', 'menu', 'element', 'page', 'theme'], function (exports) 
         }
       };
       if (Site.i18n && Type(Site.i18n) === 'object') return next();
-      fetch(`/lang/${Site.lang}.json`).then(r => r.json()).then(r => {
+      fetch(`/fish/lang/${Site.lang}.json`).then(r => r.json()).then(r => {
         if (r.laydate) r.laydate = JSON.parse(r.laydate);
         r.site_lang = Site.lang;
         Site.i18n = r;
