@@ -1,0 +1,470 @@
+{
+	"easycom": {
+		"^u-(.*)": "uview-ui/components/u-$1/u-$1.vue"
+	},
+	"pages": [
+		{
+			"path": "pages/home/index",
+			"style": {
+				"navigationBarTitleText": "Home",
+				"app-plus":{
+					"titleNView":{
+						"type":"transparent"
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/finance/index",
+			"style": {
+				"navigationBarTitleText": "Finance"
+			}
+		},
+		{
+			"path": "pages/home/invest/index",
+			"style": {
+				"navigationBarTitleText": "Invest",
+				"enablePullDownRefresh": true,
+				"onReachBottomDistance": 50,
+				"app-plus": {
+					"pullToRefresh": {
+						"support": true,
+						"color": "#D6AE40",
+						"height": "50px",
+						"range": "50px",
+						"contentdown": {
+							"caption": "Drop down to refresh"
+						},
+						"contentover": {
+							"caption": "Release refreshable"
+						},
+						"contentrefresh": {
+							"caption": "Refreshing"
+						}
+					},
+					"scrollIndicator": "none"
+				}
+			}
+		},
+		{
+			"path": "pages/home/invest/detail",
+			"style": {
+				"navigationBarTitleText": "Detail"
+			}
+		},
+		{
+			"path": "pages/home/invest/checkout",
+			"style": {
+				"navigationBarTitleText": "Checkout"
+			}
+		},
+		{
+			"path": "pages/order/index",
+			"style": {
+				"navigationBarTitleText": "Order",
+				"enablePullDownRefresh": true,
+				"onReachBottomDistance": 50,
+				"app-plus": {
+					"pullToRefresh": {
+						"support": true,
+						"color": "#D6AE40",
+						"height": "50px",
+						"range": "50px",
+						"contentdown": {
+							"caption": "Drop down to refresh"
+						},
+						"contentover": {
+							"caption": "Release refreshable"
+						},
+						"contentrefresh": {
+							"caption": "Refreshing"
+						}
+					},
+					"scrollIndicator": "none"
+				}
+			}
+		},
+		{
+			"path": "pages/service/index",
+			"style": {
+				"navigationBarTitleText": "Service",
+				"app-plus":{
+					"titleNView":{
+						"type":"transparent"
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/my/index",
+			"style": {
+				"navigationBarTitleText": "My",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue7a1 ",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "18px",
+							"float": "right",
+							"width": "auto"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/my/page",
+			"style": {
+				"navigationBarTitleText": "Page"
+			}
+		},
+		{
+			"path": "pages/my/lottery",
+			"style": {
+				"navigationBarTitleText": "Carousel draw"
+			}
+		},
+		{
+			"path": "pages/my/address/index",
+			"style": {
+				"navigationBarTitleText": "Address",
+				"enablePullDownRefresh": true,
+				"onReachBottomDistance": 50,
+				"app-plus": {
+					"titleNView": {
+						"buttons": [
+							{
+								"text": "\ue9a9",
+								"fontSrc": "/static/iconfont/iconfont.ttf",
+								"fontSize": "18",
+								"color": "rgba(0,0,0,0.7)",
+								"float": "right",
+								"width": "auto"
+							}
+						]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/my/address/usdt",
+			"style": {
+				"navigationBarTitleText": "USDT"
+			}
+		},
+		{
+			"path": "pages/my/address/bank",
+			"style": {
+				"navigationBarTitleText": "Bank"
+			}
+		},
+		{
+			"path": "pages/my/address/zalo",
+			"style": {
+				"navigationBarTitleText": "Zalo"
+			}
+		},
+		{
+			"path": "pages/my/about",
+			"style": {
+				"navigationBarTitleText": "About us"
+			}
+		},
+		{
+			"path": "pages/my/profile/index",
+			"style": {
+				"navigationBarTitleText": "Personal data"
+			}
+		},
+		{
+			"path": "pages/my/profile/password",
+			"style": {
+				"navigationBarTitleText": "Password"
+			}
+		},
+		{
+			"path": "pages/my/profile/pay_password",
+			"style": {
+				"navigationBarTitleText": "Pay password"
+			}
+		},
+		{
+			"path": "pages/my/wallet/index",
+			"style": {
+				"navigationBarTitleText": "Assets",
+				"enablePullDownRefresh": true,
+				"onReachBottomDistance": 50,
+				"app-plus": {
+					"pullToRefresh": {
+						"support": true,
+						"color": "#D6AE40",
+						"height": "50px",
+						"range": "50px",
+						"contentdown": {
+							"caption": "Drop down to refresh"
+						},
+						"contentover": {
+							"caption": "Release refreshable"
+						},
+						"contentrefresh": {
+							"caption": "Refreshing"
+						}
+					},
+					"scrollIndicator": "none"
+				}
+			}
+		},
+		{
+			"path": "pages/my/wallet/deposit/index",
+			"style": {
+				"navigationBarTitleText": "Deposit",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [
+							{
+								"text": "\ue7ed",
+								"fontSrc": "/static/iconfont/iconfont.ttf",
+								"fontSize": "18",
+								"color": "rgba(0,0,0,0.7)",
+								"float": "right",
+								"width": "auto"
+							}
+						]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/my/wallet/deposit/record",
+			"style": {
+				"navigationBarTitleText": "Record",
+				"enablePullDownRefresh": true,
+				"onReachBottomDistance": 50,
+				"app-plus": {
+					"pullToRefresh": {
+						"support": true,
+						"color": "#D6AE40",
+						"height": "50px",
+						"range": "50px",
+						"contentdown": {
+							"caption": "Drop down to refresh"
+						},
+						"contentover": {
+							"caption": "Release refreshable"
+						},
+						"contentrefresh": {
+							"caption": "Refreshing"
+						}
+					},
+					"scrollIndicator": "none"
+				}
+			}
+		},
+		{
+			"path": "pages/my/wallet/withdrawal/index",
+			"style": {
+				"navigationBarTitleText": "Withdrawal",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [
+							{
+								"text": "\ue7ed",
+								"fontSrc": "/static/iconfont/iconfont.ttf",
+								"fontSize": "18",
+								"color": "rgba(0,0,0,0.7)",
+								"float": "right",
+								"width": "auto"
+							}
+						]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/my/wallet/withdrawal/record",
+			"style": {
+				"navigationBarTitleText": "Record",
+				"enablePullDownRefresh": true,
+				"onReachBottomDistance": 50,
+				"app-plus": {
+					"pullToRefresh": {
+						"support": true,
+						"color": "#D6AE40",
+						"height": "50px",
+						"range": "50px",
+						"contentdown": {
+							"caption": "Drop down to refresh"
+						},
+						"contentover": {
+							"caption": "Release refreshable"
+						},
+						"contentrefresh": {
+							"caption": "Refreshing"
+						}
+					},
+					"scrollIndicator": "none"
+				}
+			}
+		},
+		{
+			"path": "pages/my/message/index",
+			"style": {
+				"navigationBarTitleText": "Station letter",
+				"enablePullDownRefresh": true,
+				"onReachBottomDistance": 50,
+				"app-plus": {
+					"pullToRefresh": {
+						"support": true,
+						"color": "#D6AE40",
+						"height": "50px",
+						"range": "50px",
+						"contentdown": {
+							"caption": "Drop down to refresh"
+						},
+						"contentover": {
+							"caption": "Release refreshable"
+						},
+						"contentrefresh": {
+							"caption": "Refreshing"
+						}
+					},
+					"scrollIndicator": "none"
+				}
+			}
+		},
+		{
+			"path": "pages/my/login",
+			"style": {
+				"navigationBarTitleText": "Login",
+				"app-plus":{
+					"titleNView":false
+				}
+			}
+		},
+		{
+			"path": "pages/my/download",
+			"style": {
+				"navigationBarTitleText": "Download",
+				"app-plus":{
+					"titleNView": {
+						"type": "transparent"
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/my/browser",
+			"style": {
+				"navigationBarTitleText": "Browser",
+				"app-plus":{
+					"titleNView":{
+						"type":"transparent"
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/my/forget",
+			"style": {
+				"navigationBarTitleText": "Forget"
+			}
+		},
+		{
+			"path": "pages/my/invite",
+			"style": {
+				"navigationBarTitleText": "Invite",
+				"app-plus":{
+					"titleNView":{
+						"type":"transparent"
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/my/country",
+			"style": {
+				"navigationBarTitleText": "Country code",
+				"app-plus":{
+					"titleNView":{
+						"searchInput":{
+							"backgroundColor":"#FAFAFA",
+							"align":"left",
+							"borderRadius":"30px"
+						}
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/my/banks",
+			"style": {
+				"navigationBarTitleText": "Banks",
+				"app-plus":{
+					"titleNView":{
+						"searchInput":{
+							"backgroundColor":"#FAFAFA",
+							"align":"left",
+							"borderRadius":"30px"
+						}
+					}
+				}
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "WT3",
+		"navigationBarBackgroundColor": "#fff",
+		"backgroundColor": "#FAFAFA",
+		"backgroundColorTop": "#FAFAFA",
+		"backgroundColorBottom": "#FAFAFA",
+		"pageOrientation": "portrait"
+	},
+	"tabBar": {
+		"color": "#999999",
+		"borderStyle": "white",
+		"selectedColor": "#D6AE40",
+		"backgroundColor": "#fff",
+		"iconWidth":"20px",
+		"list": [
+			{
+				"pagePath": "pages/home/index",
+				"iconPath": "static/images/tabbar/home.png",
+				"selectedIconPath": "static/images/tabbar/home2.png",
+				"text": "Home"
+			},
+			{
+				"pagePath": "pages/order/index",
+				"iconPath": "static/images/tabbar/about.png",
+				"selectedIconPath": "static/images/tabbar/about2.png",
+				"text": "Order"
+			},
+			{
+				"pagePath": "pages/finance/index",
+				"iconPath": "static/images/tabbar/finance.png",
+				"selectedIconPath": "static/images/tabbar/finance2.png",
+				"text": "Finance"
+			},
+			{
+				"pagePath": "pages/service/index",
+				"iconPath": "static/images/tabbar/service.png",
+				"selectedIconPath": "static/images/tabbar/service2.png",
+				"text": "Service"
+			},
+			{
+				"pagePath": "pages/my/index",
+				"iconPath": "static/images/tabbar/my.png",
+				"selectedIconPath": "static/images/tabbar/my2.png",
+				"text": "Profile"
+			}
+		]
+	},
+	"condition": {
+		"current": 0,
+		"list": [{
+			"name": "",
+			"path": "pages/my/country_code",
+			"query": ""
+		}]
+	}
+}
