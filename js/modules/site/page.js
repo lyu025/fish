@@ -307,7 +307,7 @@ layui.define(['element', 'jquery', 'layer'], function (exports) {
       window.onhashchange = function () {
         const token = sessionStorage.getItem('token'), uid = sessionStorage.getItem('uid');
         if (Type(token) !== 'string' || !token.trim() || token.trim() === 'undefined' || isNaN(uid) || uid < 1) {
-          location.href = '/#/page/login.html';
+          location.href = '/fish/#/page/login.html';
           location.reload();
           return;
         }

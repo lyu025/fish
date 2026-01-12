@@ -17,11 +17,11 @@ layui.define(['jquery', 'menu', 'element', 'page', 'theme'], function (exports) 
      */
     render: async options => {
       // 是否是登录页
-      const isLoginPage = location.href.includes('/#/page/login.html');
+      const isLoginPage = location.href.includes('/fish/#/page/login.html');
       if (!isLoginPage) {
         const token = sessionStorage.getItem('token'), uid = sessionStorage.getItem('uid');
         if (Type(token) !== 'string' || !token.trim() || token.trim() === 'undefined' || isNaN(uid) || uid < 1) {
-          location.href = '/#/page/login.html';
+          location.href = '/fish/#/page/login.html';
           location.reload();
           return;
         }
