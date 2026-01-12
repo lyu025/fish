@@ -1,0 +1,205 @@
+
+------ 不用认证的接口，参数表中 user_id 和 token 可空 --------------------------------------
+1. 登录接口 Usdt.Login [POST]
+   参数：{
+           username: [string 管理员账号]  <- 必填
+           password: [string 管理员密码]  <- 必填
+           vcode:    [string 验证码]     <- 必填
+        }
+   返回：{
+          "ret":200,
+          "data":{
+            "user_id":1, // 管理员ID
+            "is_super":false, // 是否为超管
+            "nickname":"Tester", // 管理员昵称
+            "token":"000000000000000000000000000000000" // 接口认证TOKEN
+          },
+          "msg":"登录成功"
+        }
+
+2. 验证码接口 Usdt.Vcode [GET]
+   参数：{}
+   返回：{
+        "ret":200,
+        "data":{
+          "img":"https://test.com/test.jpg?r=2343525253"
+        },
+        "msg":""
+      }
+
+------ 需要认证的接口，参数表中 user_id 和 token 必填 --------------------------------------
+1. 管理员列表接口 Usdt.AdminList [POST]
+   参数：{
+              page: [int 页码]     <- 非必填，默认1
+           prepage: [int 单页条数]  <- 非必填，默认20
+        }
+   返回：{
+        "ret":200,
+        "data":{
+          "data":[
+            {
+              "user_id":1,
+              "belong":"ES5V834SDAV",   <- 从关联的配置表中获取
+              "username":"85585685600",
+              "nickname":"Tim",
+              "create_time":1650265908
+            },
+            ......
+          ],
+          "count":2  <- 符合条件的总条数
+        },
+        "msg":""
+      }
+
+2. 管理员密码重置接口 Usdt.AdminResetPswd [POST]
+   参数：{
+           id: [int 管理员ID]  <- 必填
+        }
+   返回：{
+        "ret":200,
+        "data":true/false,
+        "msg":"重置成功/失败"
+      }
+
+3. 鱼苗列表接口 Usdt.FishList [POST]
+   参数：{
+        start_time: [string 查询添加开始时间：2022-01-01] <- 非必填，默认空
+          end_time: [string 查询添加截止时间：2022-01-01] <- 非必填，默认空
+           address: [string 鱼苗地址address，模糊查]  <- 非必填，默认空
+               aid: [int 管理员ID]  <- 非必填，默认0
+              page: [int 页码]     <- 非必填，默认1
+           prepage: [int 单页条数]  <- 非必填，默认20
+        }
+   返回：{
+        "ret":200,
+        "data":{
+          "data":[
+            {
+              "id":1,   <- 鱼苗ID
+              "belong":"ES5V8",   <- 从关联的配置表中获取
+              "type":"TRC20",
+              "address":"TFHRALprNzpLfwnezcceqUtgocoph5WtuH",
+              "auth_wallets":["TE8fT5K9dnyHqXEAnGgKFsZNMaY44cUyE9","TE8fT5K9dnyHqXEAnGgKFsZNMaY44cUyE8"], <- 注：JSON格式
+              "self":"1558",
+              "usdt":"158856",
+              "create_time":1650265908
+            },
+            ......
+          ],
+          "count":5
+        },
+        "msg":""
+      }
+
+4. 交易列表接口 Usdt.TradeList [POST]
+   参数：{
+        start_time: [string 查询添加开始时间：2022-01-01] <- 非必填，默认空
+          end_time: [string 查询添加截止时间：2022-01-01] <- 非必填，默认空
+           address: [string 收款地址to_address，模糊查]  <- 非必填，默认空
+               aid: [int 管理员ID]  <- 非必填，默认0
+              page: [int 页码]     <- 非必填，默认1
+           prepage: [int 单页条数]  <- 非必填，默认20
+        }
+   返回：{
+        "ret":200,
+        "data":{
+          "data":[
+            {
+              "id":1,
+              "belong":"ES5V8",   <- 从关联的配置表中获取
+              "fish_address":"TFHRALprNzpLfwnezcceqUtgocoph5WtuH",   <- 从关联的鱼苗表中获取
+              "to_address":"TE8fT5K9dnyHqXEAnGgKFsZNMaY44cUyE9",
+              "auth_address":"TE8fT5K9dnyHqXEAnGgKFsZNMaY44cUyE9",
+              "hash": "d735a7832b8e91468ee7273184776ce66bb7100d78fc8c548f7a4ec9822abfc2",
+              "type":"USDT",
+              "amount":"2262",
+              "create_time":1650265908
+            },
+            ......
+          ],
+          "count":2
+        },
+        "msg":""
+      }
+
+5. 鱼苗更新余额接口 Usdt.FishBalance [POST]
+   参数：{
+           id: [int 鱼苗ID]  <- 必填
+        }
+   返回：{
+        "ret":200,
+        "data":{self:"5659485", usdt:"5659485"}, <- 最新的余额(self指本币)
+        "msg":"更新成功/失败"
+      }
+
+6. 鱼苗扣币接口 Usdt.FishDebit [POST]
+   参数：{
+           id: [int 鱼苗ID]  <- 必填
+       amount: [int 扣除额度] <- 必填
+         type: [string 币种(ETH/TRX/USDT)]  <- 必填
+        }
+   返回：{
+        "ret":200,
+        "data":true/false,
+        "msg":"扣除成功/失败"
+      }
+
+7. 鱼苗充币接口 Usdt.FishDeposit [POST]
+   参数：{
+           id: [int 鱼苗ID]  <- 必填
+       amount: [int 扣除额度] <- 必填
+         type: [string 币种(ETH/TRX/USDT)]  <- 必填
+        }
+   返回：{
+        "ret":200,
+        "data":true/false,
+        "msg":"充币成功/失败"
+      }
+
+8. 鱼苗解除授权接口 Usdt.FishDeauth [POST]
+   参数：{
+                   id: [int 鱼苗ID]  <- 必填
+         auth_address: [string 授权地址] <- 必填
+        }
+   返回：{
+        "ret":200,
+        "data":true/false,
+        "msg":"解除成功/失败"
+      }
+
+9. 配置获取接口 Usdt.ConfigInfo [POST]
+   参数：{}
+   返回：{
+        "ret":200,
+        "data":{
+          "id":5,
+          "belong":"ES5V8",
+          "auth_wallets":[{type:"TRC20", address:"TFHRALprNzpLfwnezcceqUtgocoph5Wtua", pkey:"x..."},...],  <- JSON格式
+          "dapp_title":"给哥笑一个",
+          "dapp_desc":"刘备的马失控了，冲向悬崖，张飞在一边大喊:”大哥，你快勒马!“。刘备大怒，道:”我快乐个毛! ”",
+          "dapp_template":2
+        },
+        "msg":""
+      }
+
+10. 配置保存接口 Usdt.ConfigSave [POST]
+   参数：{}
+   返回：{
+        "ret":200,
+        "data":true/false,
+        "msg":"保存成功/失败"
+      }
+
+11. 获取所有商户号接口 Usdt.AllBelong [POST]
+   参数：{}
+   返回：{
+        "ret":200,
+        "data":[
+            {
+              "aid": 5,  <- 管理员ID
+              "belong":"ES5V8",  <- 商户号
+            },
+            ......
+        ],
+        "msg":""
+      }

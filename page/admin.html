@@ -1,0 +1,91 @@
+<div class='layuimini-container layuimini-page-anim'>
+  <div class='layuimini-main'>
+    <script type='text/html' id='tool'>
+      <div class='layui-btn-container'>
+        <button class='layui-btn layui-btn-normal layui-btn-sm' lay-event='add' t='admin_add'></button>
+      </div>
+    </script>
+    <script type='text/html' id='operate'>
+      <div class='layui-btn-container'>
+        <button class='layui-btn layui-btn-sm layui-btn-danger' lay-event='reset' t='reset_pswd'></button>
+      </div>
+    </script>
+    <table class='layui-hide' id='list' lay-filter='list'></table>
+  </div>
+</div>
+
+<script>
+  layui.use(['jquery', 'table', 'element'], function () {
+    const $ = layui.jquery, table = layui.table;
+    table.render({
+      elem: '#list', method: 'post', api: 'AdminList',
+      request: {pageName: 'page', limitName: 'perpage'},
+      toolbar: '#tool', defaultToolbar: ['filter', 'print'],
+      where: {token: sessionStorage.getItem('token'), user_id: sessionStorage.getItem('uid'), lang: Site.lang},
+      parseData: function (r) {
+        const count = r.data.count && !isNaN(r.data.count) && r.data.count > 0 ? r.data.count : 0;
+        const list = (r.data.data && Type(r.data.data) === 'array' ? r.data.data : []).map(v => {
+          v.create_time = Time('Y/M/D H:I:S', new Date(v.create_time * 1000));
+          if (v.last_login_time) v.last_login_time = Time('Y/M/D H:I:S', new Date(v.last_login_time * 1000));
+          return v;
+        });
+        return {code: r.ret == 200 ? 0 : r.ret, msg: r.msg, count: count, data: list};
+      },
+      cols: [[
+        {field: 'id', width: 60, title: Site.i18n.id},
+        {field: 'username', width: 180, title: Site.i18n.admin},
+        {field: 'nickname', width: 180, title: Site.i18n.nickname},
+        {field: 'belong', title: Site.i18n.belong},
+        {field: 'is_super', title: Site.i18n.is_super},
+        {field: 'ip', title: Site.i18n.ip},
+        {field: 'last_login_time', width: 160, title: Site.i18n.last_ltime},
+        {field: 'create_time', width: 160, title: Site.i18n.reg_time, sort: true},
+        {title: Site.i18n.operate, width: 120, toolbar: '#operate', align: 'center'},
+      ]],
+      limits: [10, 15, 20],
+      limit: 20, page: true, skin: 'line',
+      done: () => $('.layui-btn-container [t]').each((_, e) => $(e).html(Site.i18n[$(e).attr('t')])),
+    });
+    table.on('toolbar(list)', function (obj) {
+      if (obj.event !== 'add') return;
+      layer.open({
+        title: Site.i18n.admin_add,
+        content: `<div class="layui-form">
+            <div class="layui-form-item">
+              <label class="layui-form-label">${Site.i18n.username}</label>
+              <div class="layui-input-block"><input id="admin_username" autocomplete="off" class="layui-input"></div>
+            </div>
+            <div class="layui-form-item">
+              <label class="layui-form-label">${Site.i18n.nickname}</label>
+              <div class="layui-input-block"><input id="admin_nickname" autocomplete="off" class="layui-input"></div>
+            </div>
+            <div class="layui-form-item">
+              <label class="layui-form-label">${Site.i18n.password}</label>
+              <div class="layui-input-block"><input type="password" id="admin_password" autocomplete="off" class="layui-input"></div>
+            </div>
+            <div class="layui-form-item">
+              <label class="layui-form-label">${Site.i18n.repeat_password}</label>
+              <div class="layui-input-block"><input type="password" id="admin_repeat_password" autocomplete="off" class="layui-input"></div>
+            </div>
+          </div>`,
+        btn: [Site.i18n.submit, Site.i18n.cancel],
+        yes: function () {
+          const username = $('#admin_username').val(), nickname = $('#admin_nickname').val();
+          const password = $('#admin_password').val(), password2 = $('#admin_repeat_password').val();
+          if (password !== password2) {
+            layer.msg(Site.i18n.err_password_not_match);
+            return;
+          }
+          Api('AdminAdd', 'post', {username: username, nickname: nickname, password: password}, r => {
+            layer.msg(Site.i18n[r ? 'success_admin_add' : 'failed_admin_add']);
+            if (r) table.reload('list', {}, 'data');
+          }, () => layer.msg(Site.i18n.failed_admin_add));
+        },
+      });
+    });
+    table.on('tool(list)', e => {
+      if (e.event !== 'reset') return;
+      Api('AdminResetPswd', 'post', {id: e.data.id}, r => layer.msg(Site.i18n[r ? 'success_reset_pswd' : 'failed_reset_pswd']));
+    });
+  });
+</script>

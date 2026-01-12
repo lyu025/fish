@@ -1,0 +1,97 @@
+<div class='layuimini-container layuimini-page-anim'>
+  <div class='layuimini-main'>
+    <fieldset class='table-search-fieldset'>
+      <legend t='search_tip'></legend>
+      <form class='layui-form'>
+        <div class='layui-form-item'>
+          <div class='layui-inline'>
+            <label class='layui-form-label' t='add_time'></label>
+            <div class='layui-input-inline'>
+              <input class='layui-input' id='add_time' name='add_time' p='pls_select_add_time' autocomplete='off'/>
+            </div>
+          </div>
+          <div class='layui-inline'>
+            <label class='layui-form-label' t='account'></label>
+            <div class='layui-input-inline'>
+              <input class='layui-input' name='account' p='pls_input_account' autocomplete='off'/>
+            </div>
+          </div>
+          <div id='filter_belong' class='layui-inline'>
+            <label class='layui-form-label' t='belong'></label>
+            <div class='layui-input-inline'>
+              <select name='aid'>
+                <option value='0' selected t='all'></option>
+              </select>
+            </div>
+          </div>
+          <div class='layui-inline'>
+            <button type='submit' class='layui-btn layui-btn-primary' lay-submit lay-filter='search'><i class='layui-icon'></i> <span t='search'></span></button>
+            <button type='reset' class='layui-btn layui-btn-primary' t='search_reset'></button>
+          </div>
+        </div>
+      </form>
+    </fieldset>
+    <script type='text/html' id='tool'></script>
+    <table class='layui-hide' id='list' lay-filter='list'></table>
+  </div>
+</div>
+
+<style>
+  .layui-inline{margin-right:0 !important}
+  .layui-inline label{width:auto !important;padding:9px !important}
+  .layui-input-inline{width:auto !important;max-width:160px !important;margin:0 !important}
+  button[type=submit]{margin-left:10px}
+</style>
+
+<script>
+  layui.use(['jquery', 'form', 'table', 'element', 'laydate'], function () {
+    const $ = layui.jquery, form = layui.form, table = layui.table, laydate = layui.laydate;
+    const aid = sessionStorage.getItem('uid'), isSuper = sessionStorage.getItem('is_super') == 'true';
+    laydate.render({elem: '#add_time', type: 'date', range: true, lang: localStorage.getItem('lang')});
+    if (isSuper) {
+      Api('AllBelong', 'post', null, r => {
+        $('select[name=aid]').append(r.map(e => `<option value='${e.aid}'>${e.belong}</option>`).join(''));
+        setTimeout(() => form.render(), 500);
+      });
+    } else {
+      $('#filter_belong').hide();
+      setTimeout(() => form.render(), 500);
+    }
+    form.on('submit(search)', r => {
+      const params = r.field;
+      const [aa, ab] = params.add_time.split(' - ');
+      params.start_time = aa || '';
+      params.end_time = ab || '';
+      if (!isSuper) params.aid = aid;
+      delete params.add_time;
+      table.reload('list', {page: {curr: 1}, where: params}, 'data');
+      return false;
+    });
+    table.render({
+      elem: '#list', method: 'get', api: 'ErrList',
+      request: {pageName: 'page', limitName: 'perpage'},
+      where: {token: sessionStorage.getItem('token'), user_id: sessionStorage.getItem('uid'), lang: Site.lang, aid: isSuper ? 0 : aid},
+      parseData: function (r) {
+        const count = r.data.count && !isNaN(r.data.count) && r.data.count > 0 ? r.data.count : 0;
+        const items = r.data.data && Type(r.data.data) === 'array' ? r.data.data : [];
+        const list = items.map(v => {
+          v.create_time = Time('Y/M/D H:I:S', new Date(v.create_time * 1000));
+          if ((v.content.startsWith('[') && v.content.endsWith(']')) || (v.content.startsWith('{') && v.content.endsWith('}'))) v.content = JSON.stringify(JSON.parse(v.content), null, 2);
+          return v;
+        });
+        return {code: r.ret == 200 ? 0 : r.ret, msg: r.msg, count: count, data: list};
+      },
+      toolbar: '#tool', defaultToolbar: ['filter', 'print'],
+      cols: [[
+        {field: 'id', width: 60, fixed: 'left', title: Site.i18n.id},
+        {field: 'source', width: 100, fixed: 'left', title: Site.i18n.source},
+        {field: 'account', width: 150, fixed: 'left', title: Site.i18n.account},
+        {field: 'content', title: Site.i18n.error_text},
+        {field: 'geoip', title: 'IP'},
+        {field: 'create_time', minWidth: 160, title: Site.i18n.add_time},
+      ]],
+      limits: [10, 15, 20],
+      limit: 20, page: true, skin: 'line',
+    });
+  });
+</script>

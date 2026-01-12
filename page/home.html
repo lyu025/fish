@@ -1,0 +1,114 @@
+<style>
+  .layui-top-box{padding:40px 20px 20px 20px;color:#fff}
+  .panel{margin-bottom:17px;background-color:#fff;border:1px solid transparent;border-radius:3px;-webkit-box-shadow:0 1px 1px rgba(0, 0, 0, .05);box-shadow:0 1px 1px rgba(0, 0, 0, .05)}
+  .panel-body{padding:15px}
+  .panel-title{margin-top:0;margin-bottom:0;font-size:14px;color:inherit}
+  .label{display:inline;padding:.2em .6em .3em;font-size:75%;font-weight:700;line-height:1;color:#fff;text-align:center;white-space:nowrap;vertical-align:baseline;border-radius:.25em;margin-top:.3em;}
+</style>
+
+<div class='layuimini-container layuimini-page-anim'>
+  <div class='layuimini-main layui-top-box'>
+    <div class='layui-row layui-col-space10'>
+
+      <div class='layui-col-md3'>
+        <div class='col-xs-6 col-md-3'>
+          <div class='panel layui-bg-cyan'>
+            <div class='panel-body'>
+              <div class='panel-title'>
+                <span class='label pull-right layui-bg-blue' t='real_time'></span>
+                <h5 t='fish_count'></h5>
+              </div>
+              <div class='panel-content'>
+                <h1 class='no-margins' id='fish_count'>0</h1>
+                <div class='stat-percent font-bold text-gray'><i class='fa fa-commenting'></i> <b id='today_fish_count'>0</b></div>
+                <small t='today_fish_count'></small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class='layui-col-md3'>
+        <div class='col-xs-6 col-md-3'>
+          <div class='panel layui-bg-blue'>
+            <div class='panel-body'>
+              <div class='panel-title'>
+                <span class='label pull-right layui-bg-cyan' t='real_time'></span>
+                <h5 t='debit_count'></h5>
+              </div>
+              <div class='panel-content'>
+                <h1 class='no-margins' id='debit_count'>0</h1>
+                <div class='stat-percent font-bold text-gray'><i class='fa fa-commenting'></i> <b id='today_debit_count'>0</b></div>
+                <small t='today_debit_count'></small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class='layui-col-md3'>
+        <div class='col-xs-6 col-md-3'>
+          <div class='panel layui-bg-green'>
+            <div class='panel-body'>
+              <div class='panel-title'>
+                <span class='label pull-right layui-bg-orange' t='real_time'></span>
+                <h5 t='send_count'></h5>
+              </div>
+              <div class='panel-content'>
+                <h1 class='no-margins' id='send_count'>0</h1>
+                <div class='stat-percent font-bold text-gray'><i class='fa fa-commenting'></i> <b id='today_send_count'>0</b></div>
+                <small t='today_send_count'></small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class='layui-col-md3'>
+        <div class='col-xs-6 col-md-3'>
+          <div class='panel layui-bg-orange'>
+            <div class='panel-body'>
+              <div class='panel-title'>
+                <span class='label pull-right layui-bg-green' t='real_time'></span>
+                <h5 t='can_debit_count'></h5>
+              </div>
+              <div class='panel-content'>
+                <h1 class='no-margins' id='can_debit_count'>0</h1>
+                <div class='stat-percent font-bold text-gray'>&nbsp;</div>
+                <small>&nbsp;</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class='layui-box'>
+    <div class='layui-row'>
+      <div class='layui-col-md12'>
+        <ul id='logs' class='layui-timeline' style='padding:20px'></ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  layui.use(['jquery', 'form', 'table', 'element', 'laydate'], function () {
+    const $ = layui.jquery, form = layui.form;
+    Api('GetIndexInfo', 'get', null, r => {
+      $('#fish_count').html(r.fishCount);
+      $('#today_fish_count').html(r.fishTodayCount);
+      $('#debit_count').html(r.debitCount);
+      $('#today_debit_count').html(r.debitTodayCount);
+      $('#send_count').html(r.sendCount);
+      $('#today_send_count').html(r.sendTodayCount);
+      $('#can_debit_count').html(r.canDebitCount);
+      $('#logs').html(r.logs.map(l => {
+        return `<li class='layui-timeline-item'><i class='layui-icon layui-timeline-axis'>&#xe63f;</i>`
+            + `<div class='layui-timeline-content layui-text'><h3 class='layui-timeline-title'>${Time('Y/M/D H:I:S',new Date(l.create_time*1000))}</h3><p>${l.content}</p></div></li>`;
+      }).join(''));
+    }, msg => layer.msg(msg, {time: 500}));
+  });
+</script>
